@@ -21,13 +21,10 @@ class RNN_cell(object):
         self.target_size = target_size
         
         # Weights for input and hidden tensor
-        #self.Wx = tf.Variable(tf.zeros([self.input_size,self.hidden_layer_size]))
         self.Wx = tf.Variable(tf.random_uniform([self.input_size, self.hidden_layer_size], -1.0, 1.0))
         
-        #self.Wr = tf.Variable(tf.zeros([self.input_size,self.hidden_layer_size]))
         self.Wr = tf.Variable(tf.random_uniform([self.input_size, self.hidden_layer_size], -1.0, 1.0))
 
-        #self.Wz = tf.Variable(tf.zeros([self.input_size,self.hidden_layer_size]))
         self.Wz = tf.Variable(tf.random_uniform([self.input_size, self.hidden_layer_size], -1.0, 1.0))
 
         self.br = tf.Variable(tf.truncated_normal([self.hidden_layer_size],mean=1))
@@ -61,8 +58,6 @@ class RNN_cell(object):
                         name="W_embedding")
                     
                 embedded_chars = tf.nn.embedding_lookup(self.W_embedding, self.input_x)
-                #embedded_chars_expanded = tf.expand_dims(embedded_chars, -1)
-                print('shape',embedded_chars.get_shape())
                 self.processed_input = process_batch_input_for_RNN(embedded_chars)
                 self.initial_hidden = embedded_chars[:, 0, :]
                 self.initial_hidden = tf.matmul(

@@ -6,16 +6,73 @@ Created on Fri Feb 23 16:44:32 2018
 """
 import glob
 import codecs
-from collections import deque
-import numpy as np
-import os
+
 
 
 class BatchGenerator(object):
     
+    """
+    
+    Mini-batches generator. This class is designed to generate batches of input data points.
+    Given an input directory, the generator will iterate over each sub-directory and open each file contained in those directories.
+    The most important (positional) argument is `parser`. This is a python function that takes as input one line in a flat file (.txt, .csv, ... each line is
+    supposed to be separated by `\n` token). This function will parse the line and return the desired reprentation of the input. 
+    The `parser` function can also returns a tuple (representation, label), if the argument `exist_labels` is set to True.
+    
+    
+ 
+    
+    """
     def __init__(self, parser, exist_labels=True, data_path = "*.txt", header=True, train_w2v=False, 
                  batch_size = 20, one_pass=False, dictionnary_mapping=None, 
                  padding=None, padding_term=None, inverse_trick=True):
+        """
+        
+        constructor for BatchGenerator object.
+        
+        positional arguments:
+            
+            -- parser: python function that takes as input one line of each file and returns a either a representation only
+                        
+                        or a tuple (representation, label). The output may be fore example of the form: ([1,1,2,3], [1,0]) (tuple of lists, if labels, else list)
+        
+        keyword arguments:
+            
+            -- exist_labels: boolean, True if a label is expected, else False
+            
+            -- data_path: string, data path of the form `os.path.join('data','**','*.txt')`
+            
+                            Here, `data` is the main data directory, which can possibly contain many sub-directories (`**`).
+                            `*.txt` means that the generator will only look for .txt extension.
+                        
+            -- header: boolean, True if the files contain headers. If this is the case, the first line is ignored
+            
+            -- train_w2v: boolean. The BatchGenerator class is designed to integrate with the Gensim implementation of Word2Vec
+            
+                            (https://radimrehurek.com/gensim/models/word2vec.html).
+                            
+                            
+            -- batch_size: int, number of samples in each batch
+            
+            -- one_pass: boolean, True if the generator iterates once over the data. If False, the number of iteration grows until infinity
+            
+            -- dictionnary_mapping: dictionary object. If not None, each element of each batch sample is mapped to the corresponding dictionary item
+            
+                                example: batch = [[A, B], [C, D]], dictionnary_mapping = {'A':1, 'B':2, 'C':3, 'D':4}
+                                
+                                In case of key error, `None` is returned.
+                                
+            -- padding: int, if not None, all samples are normalized so that each samples have the same length. This is useful in NLP
+                            
+                        when working with sentences of different lengths.
+                        
+            -- padding_term: int, str, double. If a sample is smaller than the padding size, the padding term is added accordingly ()
+            
+            
+            -- inverse_trick: boolean. If True, all samples are inverted (before padding). This trick is useful when training Recurrent neural networks, as the last
+            
+                            words of a sentence tend to have more importance for the embedding, while in reality the first words tend to be more significant.
+        """
         
         self.parser = parser
         self.data_path = data_path
@@ -29,32 +86,49 @@ class BatchGenerator(object):
         self.padding_term = padding_term
         self.inverse_trick= inverse_trick
      
-    def _get_dict_item(self, item):
+    def _get_dict_item(self, key):
+        
+        """
+        Returns the corresponding item of dictionary
+        
+        positional argument:
+            
+            -- key: key of the dictionary
+        
+        """
         
         try:
-            return self.dictionnary_mapping[item]
+            return self.dictionnary_mapping[key]
         
         except KeyError:
             
-            pass
+            return None
             
-    def _normalize_sequence(self, batch):
+    def _normalize_sequence(self, sample):
         
-        if len(batch)> self.padding:
-            
-            return batch[:self.padding]
+        """
+        Returns a padded sample. 
         
-        elif len(batch) < self.padding:
+        positional argument:
             
-            for i in range(self.padding -len(batch)):
+            -- sample: a list 
+        
+        """
+        if len(sample)> self.padding:
+            
+            return sample[:self.padding]
+        
+        elif len(sample) < self.padding:
+            
+            for i in range(self.padding -len(sample)):
                 
-                batch.append(self.padding_term)
+                sample.append(self.padding_term)
             
-            return batch
+            return sample
         
         else:
             
-            return batch
+            return sample
         
         
     def __iter__(self):

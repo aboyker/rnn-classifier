@@ -36,6 +36,7 @@ class Word2VecGenerator(object):
         self.dic = {k:i.index for (k,i) in model.wv.vocab.items()}
         
         if self.pre_trained:
+            
             print("loading word2vec model...")
             model = gensim.models.KeyedVectors.load_word2vec_format(self.pre_trained_path, binary=True)  
 
@@ -44,9 +45,8 @@ class Word2VecGenerator(object):
             
             print("training word2vec model...")
             model.train(self.generator, total_examples=model.corpus_count, epochs=self.n_epochs)  # can be a non-repeatable, 1-pass generator
-        
-        
-        
+
+
         return model
         
         
@@ -56,6 +56,7 @@ class Word2VecGenerator(object):
         cnt = 0
         dic_pre_trained = {}
         dic_ini = {}
+        
         for k in model.wv.vocab.keys():
             
             if k in self.dic.keys():
