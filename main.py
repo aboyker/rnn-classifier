@@ -52,7 +52,7 @@ def main():
     #w2v_model = gensim.models.KeyedVectors.load_word2vec_format('GoogleNews-vectors-negative300.bin', binary=True)  
 
     #dic = {k:i.index for (k,i) in w2v_model.wv.vocab.items()}
-    dic = w2v_generator.get_mapping()
+    dic, dic_ini = w2v_generator.get_mapping()
     print('len dic', len(dic))
     
     padding_term = len(dic)
@@ -61,7 +61,7 @@ def main():
         
         #ini_embedding[ind] = w2v_model.wv[key]
         try:
-            ini_embedding[ind] = dic[key]
+            ini_embedding[ind] = dic_ini[key]
             
         except IndexError:
             

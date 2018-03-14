@@ -55,7 +55,7 @@ class Word2VecGenerator(object):
         model = self.train()
         cnt = 0
         dic_pre_trained = {}
-        
+        dic_ini = {}
         for k in model.wv.vocab.keys():
             
             if k in self.dic.keys():
@@ -63,8 +63,10 @@ class Word2VecGenerator(object):
                 dic_pre_trained[k] = cnt
                 cnt += 1
                 
+                dic_ini[k] = model.wv[k]
                 
-        return dic_pre_trained
+                
+        return dic_pre_trained, dic_ini
         
 
         
