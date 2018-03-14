@@ -12,14 +12,14 @@ class RNN_cell(object):
     """
 
     def __init__(self, input_size, hidden_layer_size, target_size, 
-                 embedding_lookup=False, vocab_size=None, ini_embedding=None, input_tensor=None):
+                 embedding_lookup=False, vocab_size=None, ini_embedding=None, input_tensor=None, fixed_embedding_lookup=False):
 
         #Initialization of given values
 
         self.input_size = input_size
         self.hidden_layer_size = hidden_layer_size
         self.target_size = target_size
-        
+        self.fixed_embedding_lookup = fixed_embedding_lookup
         # Weights for input and hidden tensor
         self.Wx = tf.Variable(tf.random_uniform([self.input_size, self.hidden_layer_size], -1.0, 1.0))
         
@@ -49,13 +49,13 @@ class RNN_cell(object):
                     
                     self.W_embedding = tf.Variable(
                         ini_embedding,
-                        name="W_embedding")
+                        name="W_embedding", trainable=not self.fixed_embedding_lookup)
                     
                 else:
                     
                     self.W_embedding = tf.Variable(
                         tf.random_uniform([vocab_size, self.input_size], -1.0, 1.0),
-                        name="W_embedding")
+                        name="W_embedding", trainable= not self.fixed_embedding_lookup)
                     
                 embedded_chars = tf.nn.embedding_lookup(self.W_embedding, self.input_x)
                 self.processed_input = process_batch_input_for_RNN(embedded_chars)

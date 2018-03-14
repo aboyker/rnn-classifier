@@ -13,11 +13,70 @@ from rnn_cell import process_batch_input_for_RNN
 
 class RNN(object):
     
+    
+    """
+    Implementation of a simple Recurrent Neural Network for sentence classification.
+    
+               
+                                                                          / label 1
+    ->   ->  ->  ->   ->    ->   ->    EMBEDDING! -> Classification layer - label 2
+                                                                          \  
+                                                                            label q
+    
+    O    O       O ... O    O    O      ^
+    |    |       |     |    |    |      |
+    O    O       O ... O    O    O
+    .    .       .     .    .    .
+    .    .       .     .    .    .      ^
+    .    .       .     .    .    .      |    upward direction
+    O    O       O ... O    O    O
+    |    |       |     |    |    |      ^
+    O    O       O ... O    O    O      |      O = RNN cell
+    
+    ^    ^       ^     ^    ^    ^
+    The  parrot  is... and very smart
+    
+    
+    This class can readily be used as a document classifier, or can serve as a basis to build more elaborate models.
+    
+    
+    """
+    
     def __init__(self, RNN_cell,learning_rate=0.001, n_epochs = 50, target_size=10, input_size=28, hidden_layer_size=30, 
                  n_stacked_units =1,
-                 validation_steps=300, vocab_size=None, embedding_lookup=False,
+                 validation_steps=300, vocab_size=None, fixed_embedding_lookup=False,
                  attention= False,ini_embedding=None):
         
+        """
+        
+        Constructor for RNN class
+        
+        positional arguments:
+            
+            -- RNN_cell: a RNN_cell object, representing the type of RNN cells (LSTM, GRU, ...)
+            
+        keyword arguments: 
+            
+            -- learning_rate: double, the learning rate
+            
+            -- n_epochs: 
+                
+            -- target_size: int, number of labels
+            
+            -- input_size: int, embedding dimension for the embedding lookup matrix
+            
+            -- hidden_layer_size: int, embedding dimension in each RNN cell
+            
+            -- n_stacked_units: int, number of stacked units (depth of the network)
+            
+            -- validation_steps: int, number of training batch required before model validation
+            
+            -- vocab_size: int, number of words in vocabulary, dimension of embedding lookup matrix
+            
+            -- fixed_embedding_lookup: boolean, if True, the embedding lookup matrix is fixed and will not be trained
+            
+            -- ini_embedding: numpy ndarray of size (vocab_size * input_size), initial value for embedding lookup matrix
+        """
         self.RNN_cell = RNN_cell
         self.hidden_layer_size = hidden_layer_size
         self.input_size = input_size
@@ -27,7 +86,7 @@ class RNN(object):
         self.learning_rate = learning_rate
         self.vocab_size = vocab_size
         self.ini_embedding = ini_embedding
-        self.embedding_lookup = embedding_lookup
+        self.fixed_embedding_lookup = fixed_embedding_lookup
         self.n_stacked_units = n_stacked_units
         self.attention = attention
         
@@ -37,7 +96,7 @@ class RNN(object):
         input_y = tf.placeholder(tf.float32, shape=[None, self.target_size], name='inputs')
     
         rnn = self.RNN_cell( self.input_size, self.hidden_layer_size, self.target_size, 
-                            embedding_lookup=self.embedding_lookup, vocab_size=self.vocab_size,
+                            embedding_lookup=True, vocab_size=self.vocab_size,
                             ini_embedding=self.ini_embedding)
         input_x = rnn.input_x
         outputs = rnn.get_outputs()
@@ -63,7 +122,9 @@ class RNN(object):
             last_output = tf.multiply(stacked_input, W_attention)
             last_output = tf.map_fn(rnn.get_output, last_output)
             last_output = last_output[-1]
+            
         else:
+            
             W_attention = tf.Variable(tf.truncated_normal([self.hidden_layer_size],mean=1))
             W_attention = tf.divide(tf.abs(W_attention), tf.norm(W_attention, ord=1))
             last_output = outputs[-1]
@@ -73,7 +134,7 @@ class RNN(object):
         output = tf.nn.softmax(last_output)
         cross_entropy = -tf.reduce_sum(input_y * tf.log(output))
         train_step = tf.train.AdamOptimizer(learning_rate=self.learning_rate).minimize(cross_entropy)
-        #Calculatio of correct prediction and accuracy
+        #Calculation of correct prediction and accuracy
         predi = tf.argmax(output, 1)
         correct_prediction = tf.equal(tf.argmax(input_y, 1), predi)
         accuracy = (tf.reduce_mean(tf.cast(correct_prediction, tf.float32))) * 100

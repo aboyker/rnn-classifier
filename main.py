@@ -22,7 +22,7 @@ validation_path = os.path.join('data','stsa','test','*.txt')
 
 word2vec_epochs = 10
 
-embedding_size = 300
+embedding_size = 40
 padding= 49
 
 learning_rate = 0.001
@@ -30,15 +30,15 @@ learning_rate = 0.001
 batch_size_train = 30
 batch_size_valid = 300
 
-embedding_lookup=True
+fixed_embedding_lookup=True
 hidden_layer_size = 25
 n_epochs = 5
 
 
-n_stacked_units = 1
+n_stacked_units = 2
 
 attention = False
-pre_trained = True
+pre_trained = False
 
 def main():
     
@@ -81,7 +81,7 @@ def main():
     rnn_param = {'RNN_cell':RNN_cell, 'learning_rate':learning_rate, 'n_epochs': n_epochs, 'target_size':2, 'input_size':embedding_size, 
                  'hidden_layer_size':hidden_layer_size, 'validation_steps':200, 
                  'vocab_size':len(dic)+1, 'attention':attention,
-                 'ini_embedding':ini_embedding,'embedding_lookup':embedding_lookup, 'n_stacked_units':n_stacked_units}
+                 'ini_embedding':ini_embedding,'fixed_embedding_lookup':fixed_embedding_lookup, 'n_stacked_units':n_stacked_units}
     
     gru_net = RNN(**rnn_param)
     gru_net.fit_generator(train_generator, validation_generator)

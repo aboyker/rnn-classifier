@@ -28,7 +28,7 @@ class BatchGenerator(object):
                  padding=None, padding_term=None, inverse_trick=True):
         """
         
-        constructor for BatchGenerator object.
+        constructor for BatchGenerator class.
         
         positional arguments:
             
@@ -133,6 +133,10 @@ class BatchGenerator(object):
         
     def __iter__(self):
         
+        """
+        Iterates across the data and returns batches of samples 
+        
+        """
         while True:
                 
             for filename in glob.iglob(self.data_path, recursive=True):
