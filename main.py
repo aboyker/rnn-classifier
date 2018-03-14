@@ -29,7 +29,7 @@ padding= 49
 
 learning_rate = 0.001
 
-batch_size_train = 27
+batch_size_train = 30
 batch_size_valid = 300
 
 embedding_lookup=True
@@ -37,7 +37,7 @@ hidden_layer_size = 25
 n_epochs = 5
 
 
-n_stacked_units = 3
+n_stacked_units = 1
 
 attention = False
 
@@ -46,17 +46,26 @@ def main():
 
     reset_graph()
     
-    w2v_generator = Word2VecGenerator(w2v_path, parser_stsa, embedding_size=embedding_size, batch_size=100, n_epochs=word2vec_epochs)
-    w2v_model = w2v_generator.train()
+    w2v_generator = Word2VecGenerator(w2v_path, parser_stsa, embedding_size=embedding_size, batch_size=100,
+                                      n_epochs=word2vec_epochs, pre_trained=False)
+    #w2v_model = w2v_generator.train()
     #w2v_model = gensim.models.KeyedVectors.load_word2vec_format('GoogleNews-vectors-negative300.bin', binary=True)  
 
-    dic = {k:i.index for (k,i) in w2v_model.wv.vocab.items()}
+    #dic = {k:i.index for (k,i) in w2v_model.wv.vocab.items()}
+    dic = w2v_generator.get_mapping()
+    print('len dic', len(dic))
     
     padding_term = len(dic)
     ini_embedding = np.zeros((len(dic)+1, embedding_size), dtype=np.float32)
     for key, ind in dic.items():
-        ini_embedding[ind] = w2v_model.wv[key]
         
+        #ini_embedding[ind] = w2v_model.wv[key]
+        try:
+            ini_embedding[ind] = dic[key]
+            
+        except IndexError:
+            
+            pass
     #ini_embedding = None
     train_generator_param = {'parser':parser_stsa,'exist_labels':True, 'train_w2v':False, 
                            'data_path':train_path, 'header':True, 
