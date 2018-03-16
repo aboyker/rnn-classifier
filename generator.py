@@ -18,9 +18,7 @@ class BatchGenerator(object):
     The most important (positional) argument is `parser`. This is a python function that takes as input one line in a flat file (.txt, .csv, ... each line is
     supposed to be separated by `\n` token). This function will parse the line and return the desired reprentation of the input. 
     The `parser` function can also returns a tuple (representation, label), if the argument `exist_labels` is set to True.
-    
-    
- 
+
     
     """
     def __init__(self, parser, exist_labels=True, data_path = "*.txt", header=True, train_w2v=False, 
@@ -34,7 +32,7 @@ class BatchGenerator(object):
             
             -- parser: python function that takes as input one line of each file and returns a either a representation only
                         
-                        or a tuple (representation, label). The output may be fore example of the form: ([1,1,2,3], [1,0]) (tuple of lists, if labels, else list)
+                or a tuple (representation, label). The output may be fore example of the form: ([1,1,2,3], [1,0]) (tuple of lists, if labels, else list)
         
         keyword arguments:
             
@@ -42,14 +40,14 @@ class BatchGenerator(object):
             
             -- data_path: string, data path of the form `os.path.join('data','**','*.txt')`
             
-                            Here, `data` is the main data directory, which can possibly contain many sub-directories (`**`).
-                            `*.txt` means that the generator will only look for .txt extension.
+                Here, `data` is the main data directory, which can possibly contain many sub-directories (`**`).
+                `*.txt` means that the generator will only look for .txt extension.
                         
             -- header: boolean, True if the files contain headers. If this is the case, the first line is ignored
             
             -- train_w2v: boolean. The BatchGenerator class is designed to integrate with the Gensim implementation of Word2Vec
             
-                            (https://radimrehurek.com/gensim/models/word2vec.html).
+                (https://radimrehurek.com/gensim/models/word2vec.html).
                             
                             
             -- batch_size: int, number of samples in each batch
@@ -58,20 +56,20 @@ class BatchGenerator(object):
             
             -- dictionnary_mapping: dictionary object. If not None, each element of each batch sample is mapped to the corresponding dictionary item
             
-                                example: batch = [[A, B], [C, D]], dictionnary_mapping = {'A':1, 'B':2, 'C':3, 'D':4}
+                example: batch = [[A, B], [C, D]], dictionnary_mapping = {'A':1, 'B':2, 'C':3, 'D':4}
                                 
-                                In case of key error, `None` is returned.
+                In case of key error, `None` is returned.
                                 
             -- padding: int, if not None, all samples are normalized so that each samples have the same length. This is useful in NLP
                             
-                        when working with sentences of different lengths.
+                when working with sentences of different lengths.
                         
             -- padding_term: int, str, double. If a sample is smaller than the padding size, the padding term is added accordingly ()
             
             
             -- inverse_trick: boolean. If True, all samples are inverted (before padding). This trick is useful when training Recurrent neural networks, as the last
             
-                            words of a sentence tend to have more importance for the embedding, while in reality the first words tend to be more significant.
+                words of a sentence tend to have more importance for the embedding, while in reality the first words tend to be more significant.
         """
         
         self.parser = parser
@@ -111,7 +109,7 @@ class BatchGenerator(object):
         
         positional argument:
             
-            -- sample: a list 
+            -- sample: a list of objects
         
         """
         if len(sample)> self.padding:

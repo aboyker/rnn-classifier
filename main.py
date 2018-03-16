@@ -7,11 +7,11 @@ Created on Thu Feb 22 16:54:50 2018
 """
 
 from w2v import Word2VecGenerator
-from helper import get_MNIST_data, reset_graph
+from helper import reset_graph
 import matplotlib.pyplot as plt
 from generator import BatchGenerator
 import os
-from parser2 import parse_mnist, parser_stsa
+from parser2 import parser_stsa
 from rnn import RNN
 from rnn_cell import RNN_cell
 import numpy as np
@@ -32,7 +32,7 @@ batch_size_valid = 300
 
 fixed_embedding_lookup=True
 hidden_layer_size = 25
-n_epochs = 5
+total_n_batches = 10000
 
 
 n_stacked_units = 2
@@ -53,9 +53,11 @@ def main():
     
     padding_term = len(dic)
     ini_embedding = np.zeros((len(dic)+1, embedding_size), dtype=np.float32)
+    
     for key, ind in dic.items():
         
         try:
+            
             ini_embedding[ind] = dic_ini[key]
             
         except IndexError:
@@ -78,7 +80,7 @@ def main():
     
     validation_generator = BatchGenerator(**validation_generator_param)
     
-    rnn_param = {'RNN_cell':RNN_cell, 'learning_rate':learning_rate, 'n_epochs': n_epochs, 'target_size':2, 'input_size':embedding_size, 
+    rnn_param = {'RNN_cell':RNN_cell, 'learning_rate':learning_rate, 'total_n_batches': total_n_batches, 'target_size':2, 'input_size':embedding_size, 
                  'hidden_layer_size':hidden_layer_size, 'validation_steps':200, 
                  'vocab_size':len(dic)+1, 'attention':attention,
                  'ini_embedding':ini_embedding,'fixed_embedding_lookup':fixed_embedding_lookup, 'n_stacked_units':n_stacked_units}

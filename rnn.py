@@ -42,7 +42,7 @@ class RNN(object):
     
     """
     
-    def __init__(self, RNN_cell,learning_rate=0.001, n_epochs = 50, target_size=10, input_size=28, hidden_layer_size=30, 
+    def __init__(self, RNN_cell,learning_rate=0.001, total_n_batches = 50, target_size=10, input_size=28, hidden_layer_size=30, 
                  n_stacked_units =1,
                  validation_steps=300, vocab_size=None, fixed_embedding_lookup=False,
                  attention= False,ini_embedding=None):
@@ -76,12 +76,13 @@ class RNN(object):
             -- fixed_embedding_lookup: boolean, if True, the embedding lookup matrix is fixed and will not be trained
             
             -- ini_embedding: numpy ndarray of size (vocab_size * input_size), initial value for embedding lookup matrix
+        
         """
         self.RNN_cell = RNN_cell
         self.hidden_layer_size = hidden_layer_size
         self.input_size = input_size
         self.target_size = target_size
-        self.n_epochs = n_epochs
+        self.total_n_batches = total_n_batches
         self.validation_steps = validation_steps
         self.learning_rate = learning_rate
         self.vocab_size = vocab_size
@@ -142,13 +143,34 @@ class RNN(object):
         return input_x, input_y, train_step, cross_entropy, accuracy, predi, W_attention
     
     
-    
+    def _save_best_model(self, validation_accuracy_list):
+        
+        last_val = validation_accuracy_list[-1]
+        
+        
+        if  len(validation_accuracy_list) <1:
+        
+            return
+        
+        elif len(validation_accuracy_list) ==1:
+            
+            print("save first model")
+            return
+        
+            
+        
+        elif ((len(validation_accuracy_list) >1) and  (last_val > np.max(np.array(validation_accuracy_list[:-1])))) :
+            
+            print("saved best model, with accuracy {}".format(last_val))
+        
     def fit_generator(self, train_generator, validation_generator=None):
         
 
 
         with tf.Session() as sess:
-
+            
+            validation_accuracy_list = []
+            
             input_x, input_y, train_step, cross_entropy, accuracy, predi , last_output= self._build_graph()
             
             # init and sess.run(init) should be stuck together !!!
@@ -159,13 +181,18 @@ class RNN(object):
             
             print('aln')
             epochs_cnt = 0
+            
             for i, batch_train in enumerate(train_generator):
+            
                 if i ==0: epochs_cnt+=1
+                
                 x_batch_train, y_batch_train = batch_train
+                
                 _, ce, acc, last_output_=sess.run([train_step, cross_entropy, accuracy, last_output],feed_dict={input_x:x_batch_train, input_y:y_batch_train})
+                
                 if i%10 ==0:
                     
-                    print("{} iterations: {} out of {}  loss: {}  accuracy: {}".format(str(datetime.now()), 1+i, self.n_epochs, ce, acc))
+                    print("{} iterations: {} out of {}  loss: {}  accuracy: {}".format(str(datetime.now()), 1+i, self.total_n_batches, ce, acc))
                 
                 if (i != 0) and (i % self.validation_steps == 0) and (validation_generator is not None):
                     prediction_val_list = []
@@ -186,8 +213,9 @@ class RNN(object):
                     val_accuracy = accuracy_score(ground_truth_val, prediction_val_list)
                     print("{}  global accuracy on validation data:  {}".format(str(datetime.now()), val_accuracy))
                     print('\n')
-                    
-                if epochs_cnt ==self.n_epochs - 1: break
+                    validation_accuracy_list.append(val_accuracy)
+                    self._save_best_model(validation_accuracy_list)
+                if i >= self.total_n_batches : break
 
         
         
