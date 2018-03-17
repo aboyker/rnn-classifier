@@ -8,6 +8,7 @@ Created on Thu Feb 22 16:57:36 2018
 
 import gensim
 from generator import BatchGenerator
+import numpy as np
 
 class Word2VecGenerator(object):
     
@@ -93,11 +94,11 @@ class Word2VecGenerator(object):
     def get_mapping(self):
         
         """
-        Returns 2 dictionareis:
+        Returns 2 objects:
             
-            -- dic_mapping maps each token to a unique index from 0 to size of vocabulary
+            -- dic_mapping, dictionary, maps each token to a unique index from 0 to size of vocabulary
             
-            -- dic_ini maps each token to a its word2vec embedding. Useful to initialze other models with a w2v embedding
+            -- ini_embedding, numpy array of size (voabulary size * embedding size), initial embedding matrix (useful for tensorflow.embedding_lookup)
         
         """
         model = self.train()
@@ -115,8 +116,19 @@ class Word2VecGenerator(object):
                 
                 dic_ini[k] = model.wv[k]
                 
+        ini_embedding = np.zeros((len(dic_mapping)+1, self.embedding_size), dtype=np.float32)
+    
+        for key, ind in dic_mapping.items():
+            
+            try:
                 
-        return dic_mapping, dic_ini
+                ini_embedding[ind] = dic_ini[key]
+                
+            except IndexError:
+                
+                pass   
+        
+        return dic_mapping, ini_embedding
         
 
         
