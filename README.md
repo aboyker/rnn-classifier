@@ -4,6 +4,8 @@
 
 This is a TensorFlow implementation of a RNN classifier with GRU units. Everything is designed 'from scratches', that is we do not use the high level layers/units classes of TensorFlow so that we can keep control over every tensor operation.
 
+This can serve as basic building blocks for more complex RNN projects. The default implementation is a standard RNN multilabel classifier, with gated recurrent units.
+
 ## Default dataset
 
 As an example, we use the STSA dataset (Stanford movie review). This data set can be used for sentiment analysis (binary classification) 
@@ -26,3 +28,12 @@ For instance, "There are many parrots in the park" ==> ['There', 'are', 'many', 
 The parser function can also return a tuple containing the parsed line with a label (preferably one-hot-encoded).
 
 Ex:  "There are many parrots in the park" ==> (['There', 'are', 'many', 'parrots, 'in', 'the', 'park'], [0, 1] )
+
+
+## Deployement/predictions on novel data
+
+TODO: Fill up predict.py file
+
+## Performance comparison with CNN for text classification
+
+This model achieves  80.6% acccuracy on the STSA data set (on validation data), using the default parameters (performance can vary due to random initialization of weights). However, a CNN can achieve more than 95% accuracy on validation data on the same dataset (see my other repo [ cnn-documents-classification](https://github.com/aboyker/convnet-document-classification) )
