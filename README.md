@@ -12,6 +12,17 @@ As an example, we use the STSA dataset (Stanford movie review). This data set ca
 
 ## Requirements
 TensorFlow 1.3.0
+
+## Included features
+
+### Word2Vec embedding
+
+It is possible to either train a word2vec model or to use a pre-trained w2v model to initialize the embedding matrix.
+
+### built-in generators
+
+The network scales on large datasets thanks to the use of generators. It is possible to parse both very large file as well as a very large number of small files.
+
 ## Training on default dataset
 Download the project and cd to project directory, then do
 
